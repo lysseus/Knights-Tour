@@ -119,8 +119,7 @@
     [(key=? ke " ") (new-world ws)]
     [(and (key=? ke "\b") (world-inst-seen? ws) (> (length (world-tour ws)) 1))
      (new-world ws (second (world-tour ws)) (drop (world-tour ws) 2))]
-    [else (void)])
-  (printf "~%~a~%" ws)
+    [else (void)])  
   ws)
 
 ;; The puzzle only responds to mouse-up clicks when:
@@ -150,8 +149,7 @@
   ;; in a framework state, which is not used except for the basis
   ;; of button assignmennt by new-world.
   (define containers
-    (for/list ([n (range 64)]) 
-      (define-values (c b) (quotient/remainder n 8))
+    (for/list ([c (range 8)]) 
       (make-container (name c)
                       (x-offset NOTATION-SIZE)
                       (y-offset (+ NOTATION-SIZE (* c (current-container-button-height))))
@@ -176,9 +174,9 @@
   (set-world-legals! ws (legals-for (world-pos ws) (world-tour ws)))
   (for  ([n (range 64)])    
     (define-values (cname bname) (quotient/remainder n 8))
-    (define c/b (find-container/button cname bname (world-containers ws)))
-    (define c (first c/b))
-    (define b (second c/b))    
+    (define b (second (find-container/button cname bname (world-containers ws))))
+    #;(define c (first c/b))
+    #;(define b (second c/b))    
     (set-button-label! b (get-button-label-for n cname bname (world-pos ws) (world-tour ws)))))
 
 ;;;
@@ -299,10 +297,10 @@
                          TOUR-INFO)))
 
 (define WON (let ([img (text "SOLVED!" 80 'darkred)])
-               (rotate 45 (overlay img
-                                   (rectangle (+ 40 (image-width img))
-                                              (+ 4 (image-height img))
-                                              'solid 'gold)))))
+              (rotate 45 (overlay img
+                                  (rectangle (+ 40 (image-width img))
+                                             (+ 4 (image-height img))
+                                             'solid 'gold)))))
 (define LOST (let ([img (text "UNSOLVABLE!" 80 'darkred)])
                (rotate 45 (overlay img
                                    (rectangle (+ 40 (image-width img))
@@ -313,7 +311,7 @@
 (define (render ws)
   (define img (make-parameter #f))
   (img (place-containers (world-containers ws)
-                                   MT))
+                         MT))
   (img (place-image/align V-NOTATION 0 NOTATION-SIZE "left" "top" (img)))
   (img (place-image/align V-NOTATION
                           (+ NOTATION-SIZE (* (current-container-button-width) 8))
@@ -327,11 +325,11 @@
                           0 "left" "top" (img)))
   (if (world-inst-seen? ws)
       (img (place-image/align (draw-tour-info ws)
-                          (+ (* 2 NOTATION-SIZE) BAR-WIDTH (* (current-container-button-width) 8))
-                          0 "left" "top" (img)))
+                              (+ (* 2 NOTATION-SIZE) BAR-WIDTH (* (current-container-button-width) 8))
+                              0 "left" "top" (img)))
       (img (place-image/align INST
-                          (+ (* 4 NOTATION-SIZE) BAR-WIDTH (* (current-container-button-width) 8))
-                          (* 2 NOTATION-SIZE) "left" "top" (img))))
+                              (+ (* 4 NOTATION-SIZE) BAR-WIDTH (* (current-container-button-width) 8))
+                              (* 2 NOTATION-SIZE) "left" "top" (img))))
   (when (world-inst-seen? ws)
     (when (unsolvable? ws)
       (img (place-image/align LOST NOTATION-SIZE NOTATION-SIZE "left" "top" (img))))
