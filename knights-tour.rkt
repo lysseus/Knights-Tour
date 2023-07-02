@@ -11,6 +11,7 @@
          lang/posn
          2htdp/image
          utils/list
+         utils/struct
          utils/2htdp/clicker)
 
 ;; The world state consists of:
@@ -32,9 +33,10 @@
 ;; passed from the mouse-up click event. The move must
 ;; be valid in terms of being a valid, non-repeated knight
 ;; move.
-(define (move c b ws x-pos y-pos)  
-  (define cname (container-name c))
-  (define bname (button-name b))
+(define (move)
+  (define-from-struct clicker-evt (current-clicker-evt) ctn btn ws)
+  (define cname (container-name ctn))
+  (define bname (button-name btn))
   
   ;; Calculate knight's new position and set the button's label appropriately.
   (define new-pos (+ (* 8 cname) bname))
@@ -54,7 +56,7 @@
     (define prev-bname (button-name prev-b))
   
     (set-world-pos! ws new-pos)
-    (set-button-label! b (get-button-label-for new-pos cname bname new-pos (world-tour ws)))
+    (set-button-label! btn (get-button-label-for new-pos cname bname new-pos (world-tour ws)))
 
     ;; Set the old position's label appropriately.
     (set-button-label! prev-b (get-button-label-for prev-pos prev-cname prev-bname new-pos
@@ -174,9 +176,7 @@
   (set-world-legals! ws (legals-for (world-pos ws) (world-tour ws)))
   (for  ([n (range 64)])    
     (define-values (cname bname) (quotient/remainder n 8))
-    (define b (second (find-container/button cname bname (world-containers ws))))
-    #;(define c (first c/b))
-    #;(define b (second c/b))    
+    (define b (second (find-container/button cname bname (world-containers ws))))        
     (set-button-label! b (get-button-label-for n cname bname (world-pos ws) (world-tour ws)))))
 
 ;;;
